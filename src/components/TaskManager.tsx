@@ -1,63 +1,38 @@
-import React, { useState } from "react";
-import { Task } from "./Task";
-import { nanoid } from "nanoid";
+
+import React from "react";
+import { useTaskManager } from "./useTaskManager";
 import "./TaskManager.css";
 
 export const TaskManager: React.FC = () => {
-  const [title, setTitle] = useState<string>("");
-  const [searchKeyword, setSearchKeyword] = useState<string>("");
-  const [tasks, setTasks] = useState<Task[]>([]);
-
-  const completeTask = (id: string): void => {
-    setTasks(tasks.filter((task) => task.id !== id));
-  };
-
-  const updateTask = (id: string, taskUpdate: Partial<Task>): void => {
-    const newTasks = tasks.slice();
-
-    const index = tasks.findIndex((task) => task.id === id);
-
-    newTasks[index] = { ...newTasks[index], ...taskUpdate };
-
-    setTasks(newTasks);
-  };
-
-  const addTask = (): void => {
-    if (title.length < 1) {
-      return;
-    }
-
-    const newTask: Task = {
-      id: nanoid(),
-      title,
-    };
-    setTasks((prev) => [...prev, newTask]);
-    setTitle("");
-  };
-
-  const handleSearch = (ev: React.ChangeEvent<HTMLInputElement>): void => {
-    setSearchKeyword(ev.target.value);
-  };
-
-  const filteredTasks: Task[] = tasks.filter((task) =>
-    task.title.toLowerCase().includes(searchKeyword.toLowerCase())
-  );
+  const {
+    tasks,
+    searchKeyword,
+    title,
+    completeTask,
+    updateTask,
+    addTask,
+    handleSearch,
+    filteredTasks,
+    setTitle,
+  } = useTaskManager();
 
   return (
     <div className="container">
       <h1>Task Manager</h1>
 
       <div>
-        <input type="text" onChange={handleSearch} placeholder="Search Task" />
+        <input
+          type="text"
+          onChange={(ev) => handleSearch(ev.target.value)}
+          placeholder="Search Task"
+        />
       </div>
 
       <div className="task">
         <input
           type="text"
           value={title}
-          onChange={(ev: React.ChangeEvent<HTMLInputElement>) => {
-            setTitle(ev.target.value);
-          }}
+          onChange={(ev) => setTitle(ev.target.value)}
         />
 
         <button onClick={addTask}>Add Task</button>
@@ -71,9 +46,7 @@ export const TaskManager: React.FC = () => {
                 type="text"
                 placeholder="Add new task"
                 value={task.title}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  updateTask(task.id, { title: e.target.value })
-                }
+                onChange={(e) => updateTask(task.id, { title: e.target.value })}
               />
               <button onClick={() => completeTask(task.id)}>Done</button>
             </div>
